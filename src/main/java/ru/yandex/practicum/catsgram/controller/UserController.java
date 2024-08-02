@@ -6,21 +6,19 @@ import ru.yandex.practicum.catsgram.exception.DuplicatedDataException;
 import ru.yandex.practicum.catsgram.model.User;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final Map<Long, User> users = new HashMap<>();
-    private final AtomicLong counter = new AtomicLong(0);
 
     @GetMapping
-    public Map<Long, User> getUsers() {
-        return users;
+    public Collection<User> findAll() {
+        return users.values();
     }
 
     @PostMapping
@@ -32,7 +30,7 @@ public class UserController {
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
         user.setId(getNextId());
-        user.setRegistrationDate(Instant.from(LocalDateTime.now()));
+        user.setRegistrationDate(Instant.now());
         users.put(user.getId(), user);
         return user;
     }
@@ -63,7 +61,12 @@ public class UserController {
         return existingUser;
     }
 
-    private Long getNextId() {
-        return counter.incrementAndGet();
+    private long getNextId() {
+        long currentMaxId = users.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++currentMaxId;
     }
 }
