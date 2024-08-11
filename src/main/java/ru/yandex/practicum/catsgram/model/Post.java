@@ -22,5 +22,4 @@ public class Post {
         this.description = description;
         this.photoUrl = photoUrl;
     }
-
 }
